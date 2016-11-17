@@ -19,13 +19,15 @@ module Userstamp
 
       def set_created_by
         current_user = Mongoid::Userstamp.current_user(self.class.mongoid_userstamp_config.user_model)
-        return if current_user.blank? || self.send(self.class.mongoid_userstamp_config.created_name)
+        return false if current_user.blank?
+        return if self.send(self.class.mongoid_userstamp_config.created_name)
         self.send("#{self.class.mongoid_userstamp_config.created_name}=", current_user)
       end
 
       def set_updated_by
         current_user = Mongoid::Userstamp.current_user(self.class.mongoid_userstamp_config.user_model)
-        return if current_user.blank? || self.send("#{self.class.mongoid_userstamp_config.updated_name}_id_changed?")
+        return false if current_user.blank?
+        return if self.send("#{self.class.mongoid_userstamp_config.updated_name}_id_changed?")
         self.send("#{self.class.mongoid_userstamp_config.updated_name}=", current_user)
       end
     end
