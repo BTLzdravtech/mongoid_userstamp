@@ -35,21 +35,37 @@ module Userstamp
     module ClassMethods
 
       def belongs_to_record(association_name, options={})
-        association_class = options[:class_name] || association_name.to_s.singularize.classify
         class_eval %<
-        field :#{association_name}_id, type: Integer
+        field :#{association_name}_id, type: String
         index(#{association_name}_id: 1)
 
         def #{association_name}
-          @#{association_name} ||= #{association_class}.where(id: #{association_name}_id).first if #{association_name}_id
+          @#{association_name} ||= #{association_name}_id
         end
 
         def #{association_name}=(object)
           @#{association_name} = object
-          self.#{association_name}_id = object.try :id
+          self.#{association_name}_id = object.try :email
         end
       >
       end
+
+      # def belongs_to_record(association_name, options={})
+      #   association_class = options[:class_name] || association_name.to_s.singularize.classify
+      #   class_eval %<
+      #   field :#{association_name}_id, type: Integer
+      #   index(#{association_name}_id: 1)
+      #
+      #   def #{association_name}
+      #     @#{association_name} ||= #{association_class}.where(id: #{association_name}_id).first if #{association_name}_id
+      #   end
+      #
+      #   def #{association_name}=(object)
+      #     @#{association_name} = object
+      #     self.#{association_name}_id = object.try :id
+      #   end
+      # >
+      # end
 
       def current_user
         Mongoid::Userstamp.current_user(mongoid_userstamp_config.user_model)
